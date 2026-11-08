@@ -1,0 +1,77 @@
+# 每次推送代码：跑测试 → 打包 Android APK → 放到 Releases 的 "apk-latest"（手机直接下载）
+name: Build APK
+
+on:
+  push:
+    branches: ['**']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: build-apk
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      # 可选：在 GitHub → Settings → Secrets and variables → Actions 加这两个，APK 每次签名都一样
+      KEYSTORE_B64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+      ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Unit tests
+        run: npm test
+
+      - name: Build web app
+        run: npm run build
+
+      - name: Copy web app into Android project
+        run: npx cap sync android
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+          cache: gradle
+
+      - name: Prepare signing key
+        if: env.KEYSTORE_B64 != ''
+        run: |
+          echo "$KEYSTORE_B64" | base64 -d > "$RUNNER_TEMP/family.keystore"
+          echo "ANDROID_KEYSTORE_FILE=$RUNNER_TEMP/family.keystore" >> "$GITHUB_ENV"
+
+      - name: Build APK
+        working-directory: android
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleRelease --no-daemon --stacktrace
+          cp app/build/outputs/apk/release/app-release.apk "$GITHUB_WORKSPACE/learning-system.apk"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: learning-system-apk
+          path: learning-system.apk
+
+      - name: Publish to release "apk-latest"
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [ -n "$KEYSTORE_B64" ]; then SIGN="固定签名（更新可以直接覆盖安装）"; else SIGN="debug 签名（还没设定固定签名，更新前要先导出备份）"; fi
+          gh release delete apk-latest --yes --cleanup-tag || true
+          gh release create apk-latest learning-system.apk \
+            --title "学习乐园 APK（第 ${GITHUB_RUN_NUMBER} 版）" \
+            --notes "在 Android 手机上下载 learning-system.apk 安装。版本 0.1.${GITHUB_RUN_NUMBER} · ${SIGN} · commit ${GITHUB_SHA::7}" \
+            --target "$GITHUB_SHA" \
+            --latest
