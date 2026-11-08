@@ -57,6 +57,9 @@ export function Session({
   )
   const startedAt = useRef(Date.now())
   const recent = useRef<Record<string, string[]>>({})
+  // 离开练习后，庆祝动画的计时器不要再做事
+  const exited = useRef(false)
+  const nextTimer = useRef<number | undefined>(undefined)
   const results = useRef<{ firstTry: boolean }[]>([])
   const [index, setIndex] = useState(0)
   const [question, setQuestion] = useState<Question | null>(null)
@@ -80,12 +83,21 @@ export function Session({
     return () => window.clearTimeout(t)
   }, [index, plan, lang, say])
 
-  useEffect(() => () => stopSpeaking(), [])
+  useEffect(
+    () => () => {
+      exited.current = true
+      window.clearTimeout(nextTimer.current)
+      stopSpeaking()
+    },
+    [],
+  )
 
   const finish = useCallback(
     (completed: number) => {
       const c = childRef.current
-      if (!c) return
+      if (!c || exited.current) return
+      exited.current = true
+      window.clearTimeout(nextTimer.current)
       const firstTry = results.current.filter((r) => r.firstTry).length
       const now = Date.now()
       const fullSession = completed === plan.length
@@ -141,7 +153,8 @@ export function Session({
           [question.skill]: applyResult(ch.progress[question.skill], { skill: question.skill, ...r }, Date.now()),
         },
       }))
-      window.setTimeout(() => {
+      nextTimer.current = window.setTimeout(() => {
+        if (exited.current) return
         setCelebrate(false)
         if (index + 1 >= plan.length) finish(index + 1)
         else setIndex(index + 1)
@@ -161,8 +174,13 @@ export function Session({
           className="round-btn"
           onClick={() => {
             stopSpeaking()
-            if (index > 0) finish(index)
-            else onExit()
+            // 答对了正在庆祝的那一题也算完成
+            const completed = results.current.length
+            if (completed > 0) finish(completed)
+            else {
+              exited.current = true
+              onExit()
+            }
           }}
           aria-label="home"
         >

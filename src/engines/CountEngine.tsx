@@ -59,6 +59,8 @@ export function CountEngine({ q, lang, say, onSolved }: EngineProps<CountQuestio
   const runDemo = () => {
     timers.current.forEach((t) => window.clearTimeout(t))
     setCounted([])
+    // -1：示范中（还没数到第一个），这段时间不能选答案
+    setDemoIndex(-1)
     say(ui('letsCountTogether', lang))
     for (let i = 0; i < q.count; i++) {
       timers.current.push(
