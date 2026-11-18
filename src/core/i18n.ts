@@ -96,6 +96,32 @@ export function promptText(p: Prompt, lang: Lang): string {
       if (lang === 'zh') return `用手指描一描数字${numberWord(p.n, 'zh')}`
       if (lang === 'ms') return `Surih nombor ${numberWord(p.n, 'ms')} dengan jari`
       return `Trace the number ${numberWord(p.n, 'en')} with your finger`
+    case 'orderSmallToBig':
+      return {
+        zh: '从小排到大',
+        ms: 'Susun dari kecil ke besar',
+        en: 'Put them in order, from smallest to biggest',
+      }[lang]
+    case 'orderBigToSmall':
+      return {
+        zh: '从大排到小',
+        ms: 'Susun dari besar ke kecil',
+        en: 'Put them in order, from biggest to smallest',
+      }[lang]
+    case 'orderNumbers':
+      return {
+        zh: '把数字从小排到大',
+        ms: 'Susun nombor dari kecil ke besar',
+        en: 'Put the numbers in order, smallest first',
+      }[lang]
+    case 'missingNumber':
+      return { zh: '哪一个数字不见了？', ms: 'Nombor apa yang hilang?', en: 'Which number is missing?' }[lang]
+    case 'matchNumbers':
+      return {
+        zh: '把数字放到一样多的那一堆',
+        ms: 'Padankan nombor dengan kumpulan yang sama banyak',
+        en: 'Match each number to the group with the same amount',
+      }[lang]
   }
 }
 

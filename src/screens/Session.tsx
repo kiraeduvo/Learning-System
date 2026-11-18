@@ -10,6 +10,8 @@ import { pickNewSticker, type StickerDef } from '../core/stickers'
 import type { ChildProfile, Question, SkillId } from '../core/types'
 import { ChoiceEngine } from '../engines/ChoiceEngine'
 import { CountEngine } from '../engines/CountEngine'
+import { MatchEngine } from '../engines/MatchEngine'
+import { OrderEngine } from '../engines/OrderEngine'
 import { SortEngine } from '../engines/SortEngine'
 import { TraceEngine } from '../engines/TraceEngine'
 import { speak, stopSpeaking } from '../services/speech'
@@ -212,6 +214,8 @@ export function Session({
         {question.engine === 'choice' && <ChoiceEngine q={question} {...engineProps} />}
         {question.engine === 'sort' && <SortEngine q={question} {...engineProps} />}
         {question.engine === 'trace' && <TraceEngine q={question} {...engineProps} />}
+        {question.engine === 'order' && <OrderEngine q={question} {...engineProps} />}
+        {question.engine === 'match' && <MatchEngine q={question} {...engineProps} />}
       </div>
 
       {celebrate && (

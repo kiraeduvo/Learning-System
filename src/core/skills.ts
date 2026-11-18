@@ -18,7 +18,19 @@ export interface SkillDef {
   /** 家长区显示的名字 */
   nameZh: string
   /** 主页游戏图示 */
-  icon: 'count' | 'numeral' | 'moreLess' | 'size' | 'shapes' | 'sortColor' | 'sortShape' | 'pattern' | 'trace'
+  icon:
+    | 'count'
+    | 'numeral'
+    | 'moreLess'
+    | 'size'
+    | 'shapes'
+    | 'sortColor'
+    | 'sortShape'
+    | 'pattern'
+    | 'trace'
+    | 'orderSize'
+    | 'orderNumber'
+    | 'matchNumber'
   /** 每次练习最多出几题（比较花时间的题型） */
   maxPerSession?: number
 }
@@ -54,6 +66,33 @@ export const SKILLS: SkillDef[] = [
     maxPerSession: 2,
   },
   { id: 'pattern', strand: 'pranombor', age: 4, prerequisites: ['sortColor'], nameZh: '找规律', icon: 'pattern' },
+  {
+    id: 'orderSize',
+    strand: 'pranombor',
+    age: 4,
+    prerequisites: ['size'],
+    nameZh: '从小排到大',
+    icon: 'orderSize',
+    maxPerSession: 3,
+  },
+  {
+    id: 'orderNumber',
+    strand: 'konsepNombor',
+    age: 4,
+    prerequisites: ['numeral5'],
+    nameZh: '数字排顺序',
+    icon: 'orderNumber',
+    maxPerSession: 3,
+  },
+  {
+    id: 'matchNumber',
+    strand: 'konsepNombor',
+    age: 4,
+    prerequisites: ['numeral5'],
+    nameZh: '数字配对',
+    icon: 'matchNumber',
+    maxPerSession: 3,
+  },
   { id: 'count10', strand: 'konsepNombor', age: 5, prerequisites: ['count5'], nameZh: '数数 1–10', icon: 'count' },
   {
     id: 'numeral10',

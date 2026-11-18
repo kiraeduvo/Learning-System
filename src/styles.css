@@ -1291,3 +1291,8 @@ textarea {
     animation-iteration-count: 1 !important;
   }
 }
+
+.skill-icon.bottom {
+  align-items: flex-end;
+  padding-bottom: 14px;
+}

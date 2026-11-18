@@ -14,6 +14,9 @@ export type SkillId =
   | 'sortShape'
   | 'pattern'
   | 'trace'
+  | 'orderSize'
+  | 'orderNumber'
+  | 'matchNumber'
 
 export type Difficulty = 1 | 2 | 3
 
@@ -57,8 +60,13 @@ export type Prompt =
   | { key: 'sortByShape' }
   | { key: 'whatNext' }
   | { key: 'traceNumber'; n: number }
+  | { key: 'orderSmallToBig' }
+  | { key: 'orderBigToSmall' }
+  | { key: 'orderNumbers' }
+  | { key: 'missingNumber' }
+  | { key: 'matchNumbers' }
 
-interface BaseQuestion {
+export interface BaseQuestion {
   skill: SkillId
   difficulty: Difficulty
   /** 用来避免同一题重复出现 */
@@ -103,7 +111,13 @@ export interface TraceQuestion extends BaseQuestion {
   digit: number
 }
 
-export type Question = CountQuestion | ChoiceQuestion | SortQuestion | TraceQuestion
+// 每个新游戏的题目类型放在自己的文件里（多个 agent 可以同时做不同的游戏）
+export type { OrderItem, OrderQuestion } from './games/order'
+export type { MatchQuestion } from './games/match'
+import type { OrderQuestion } from './games/order'
+import type { MatchQuestion } from './games/match'
+
+export type Question = CountQuestion | ChoiceQuestion | SortQuestion | TraceQuestion | OrderQuestion | MatchQuestion
 
 /** 每一题做完的结果。score：1 = 第一次就对，0.5 = 错一次，0 = 错很多次 */
 export interface QuestionResult {

@@ -46,6 +46,22 @@ function checkQuestion(q: Question) {
     case 'trace':
       expect(q.digit).toBeGreaterThanOrEqual(0)
       expect(q.digit).toBeLessThanOrEqual(9)
+      break
+    case 'order': {
+      // rank 要刚好是 0..n-1，每个东西有图或数字
+      const ranks = q.items.map((i) => i.rank).sort((a, b) => a - b)
+      expect(q.items.length).toBeGreaterThanOrEqual(2)
+      expect(ranks).toEqual(q.items.map((_, i) => i))
+      for (const it of q.items) expect(it.item !== undefined || it.numeral !== undefined).toBe(true)
+      break
+    }
+    case 'match': {
+      // 每张数字卡刚好对一堆，数量不重复
+      expect(q.groups.length).toBeGreaterThanOrEqual(2)
+      expect(new Set(q.groups).size).toBe(q.groups.length)
+      expect([...q.numerals].sort((a, b) => a - b)).toEqual([...q.groups].sort((a, b) => a - b))
+      break
+    }
   }
 }
 

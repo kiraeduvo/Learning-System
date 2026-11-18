@@ -83,5 +83,32 @@ export function SkillIcon({ skill, size }: { skill: SkillDef; size: number }) {
           2
         </span>
       )
+    case 'orderSize':
+      return (
+        <span className="skill-icon bottom">
+          {[0.2, 0.3, 0.42].map((k, i) => (
+            <ItemArt key={i} item={{ kind: 'balloon', color: 'purple' }} size={s * k} />
+          ))}
+        </span>
+      )
+    case 'orderNumber':
+      return (
+        <span className="skill-icon numeral-icon" style={{ fontSize: s * 0.3 }}>
+          1 2 3
+        </span>
+      )
+    case 'matchNumber':
+      return (
+        <span className="skill-icon column">
+          <span className="numeral-icon" style={{ fontSize: s * 0.3 }}>
+            3
+          </span>
+          <span className="icon-row">
+            {[0, 1, 2].map((i) => (
+              <ItemArt key={i} item={{ kind: 'star' }} size={s * 0.22} />
+            ))}
+          </span>
+        </span>
+      )
   }
 }
