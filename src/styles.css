@@ -1008,7 +1008,7 @@ textarea {
 .p-section p {
   margin: 6px 0;
 }
-.hint {
+.p-section .hint {
   color: var(--ink-soft);
   font-size: 15px;
   line-height: 1.5;

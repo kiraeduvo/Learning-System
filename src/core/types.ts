@@ -64,6 +64,7 @@ export type Prompt =
   | { key: 'orderBigToSmall' }
   | { key: 'orderNumbers' }
   | { key: 'missingNumber' }
+  | { key: 'missingNumbers' }
   | { key: 'matchNumbers' }
 
 export interface BaseQuestion {

@@ -116,6 +116,8 @@ export function promptText(p: Prompt, lang: Lang): string {
       }[lang]
     case 'missingNumber':
       return { zh: '哪一个数字不见了？', ms: 'Nombor apa yang hilang?', en: 'Which number is missing?' }[lang]
+    case 'missingNumbers':
+      return { zh: '哪些数字不见了？', ms: 'Nombor apa yang hilang?', en: 'Which numbers are missing?' }[lang]
     case 'matchNumbers':
       return {
         zh: '把数字放到一样多的那一堆',

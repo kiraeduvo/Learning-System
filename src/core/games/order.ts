@@ -124,7 +124,7 @@ function missingNumberQuestion(rng: Rng): OrderQuestion {
     skill: 'orderNumber',
     difficulty: 3,
     signature: `orderNumber:missing:${shown.join(',')}:${choices.join(',')}`,
-    prompt: { key: 'missingNumber' },
+    prompt: { key: gaps.length > 1 ? 'missingNumbers' : 'missingNumber' },
     items: seq.map((numeral, rank) => ({ numeral, rank })),
     given,
     choices,

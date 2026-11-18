@@ -23,6 +23,9 @@ function many(skill: (typeof SKILLS)[number], d: Difficulty): OrderQuestion[] {
 const byRank = (q: OrderQuestion): OrderItem[] => [...q.items].sort((a, b) => a.rank - b.rank)
 const range = (n: number) => Array.from({ length: n }, (_, i) => i)
 
+/** 「哪一个数字不见了」和「哪些数字不见了」 */
+const isMissing = (q: OrderQuestion) => q.prompt.key === 'missingNumber' || q.prompt.key === 'missingNumbers'
+
 describe('排顺序：每个难度都要遵守的规则', () => {
   for (const skill of SKILLS) {
     for (const d of DIFFS) {
@@ -191,7 +194,7 @@ describe('数字排顺序（orderNumber）', () => {
       expect(many('orderNumber', d).every((q) => q.prompt.key === 'orderNumbers')).toBe(true)
     }
     const qs = many('orderNumber', 3)
-    const missing = qs.filter((q) => q.prompt.key === 'missingNumber').length
+    const missing = qs.filter(isMissing).length
     expect(missing).toBeGreaterThan(N * 0.3)
     expect(missing).toBeLessThan(N * 0.7)
   })
@@ -200,7 +203,7 @@ describe('数字排顺序（orderNumber）', () => {
     let oneGap = 0
     let twoGaps = 0
     for (const q of many('orderNumber', 3)) {
-      if (q.prompt.key !== 'missingNumber') continue
+      if (!isMissing(q)) continue
       const n = q.items.length
       const given = q.given!
       expect(given).toBeDefined()
@@ -222,7 +225,7 @@ describe('数字排顺序（orderNumber）', () => {
   it('不见的数字：下面的选择包括每个不见的数字，干扰的数字不在这一排里面', () => {
     const answers = new Set<string>()
     for (const q of many('orderNumber', 3)) {
-      if (q.prompt.key !== 'missingNumber') continue
+      if (!isMissing(q)) continue
       const nums = byRank(q).map((o) => o.numeral!)
       const missing = byRank(q)
         .filter((o) => !q.given!.includes(o.rank))
@@ -241,10 +244,21 @@ describe('数字排顺序（orderNumber）', () => {
     expect(answers.size).toBeGreaterThanOrEqual(10)
   })
 
+  it('一个不见了用"哪一个"，两个不见了用"哪些"', () => {
+    let plural = 0
+    for (const q of many('orderNumber', 3)) {
+      if (!isMissing(q)) continue
+      const gaps = q.items.length - q.given!.length
+      expect(q.prompt.key).toBe(gaps > 1 ? 'missingNumbers' : 'missingNumber')
+      if (gaps > 1) plural++
+    }
+    expect(plural).toBeGreaterThan(0)
+  })
+
   it('不见的数字：答案在下面的位置有变化', () => {
     const positions = new Set<number>()
     for (const q of many('orderNumber', 3)) {
-      if (q.prompt.key !== 'missingNumber' || q.given!.length !== 4) continue
+      if (!isMissing(q) || q.given!.length !== 4) continue
       const missing = byRank(q).find((o) => !q.given!.includes(o.rank))!.numeral!
       positions.add(q.choices!.indexOf(missing))
     }

@@ -85,14 +85,15 @@ export function Session({
     return () => window.clearTimeout(t)
   }, [index, plan, lang, say])
 
-  useEffect(
-    () => () => {
+  useEffect(() => {
+    // 开发模式会先卸载再装一次：装上时要设回 false，不然练习会卡住
+    exited.current = false
+    return () => {
       exited.current = true
       window.clearTimeout(nextTimer.current)
       stopSpeaking()
-    },
-    [],
-  )
+    }
+  }, [])
 
   const finish = useCallback(
     (completed: number) => {

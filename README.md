@@ -7,12 +7,12 @@ Pranombor（数前概念）、Konsep Nombor（数的概念）、Bentuk dan Ruang
 - 全程有语音读题（中文 / Bahasa Melayu / English）
 - 题目是自动生成的，可以一直练；会按孩子的表现自动调难度
 
-## 现在有的游戏（11 种）
+## 现在有的游戏（14 种）
 
 | 部分 | 游戏 | 建议年龄 |
 |---|---|---|
-| Pranombor | 比大小、按颜色分类、按形状分类、比多少、找规律 | 4+ |
-| Konsep Nombor | 数数 1–5、认数字 1–5 | 4+ |
+| Pranombor | 比大小、按颜色分类、按形状分类、比多少、找规律、从小排到大 | 4+ |
+| Konsep Nombor | 数数 1–5、认数字 1–5、数字排顺序、数字配对 | 4+ |
 | Konsep Nombor | 数数 1–10、认数字 1–10、描数字 0–9 | 5+ |
 | Bentuk dan Ruang | 认识形状（圆形、三角形、正方形、长方形） | 4+ |
 
@@ -66,8 +66,9 @@ npm run build      # 打包网页
 npx cap sync android   # 把网页放进 Android 项目
 ```
 
-- `src/core/`：技能地图（`skills.ts`）、题目生成器（`generators.ts`）、学习流程（`learning.ts`）、三种语言（`i18n.ts`）
-- `src/engines/`：四种题型：数数、选择题、拖拉分类、描数字
+- `src/core/`：技能地图（`skills.ts`）、学习流程（`learning.ts`）、三种语言（`i18n.ts`）
+- `src/core/games/`：每个游戏的题目生成器一个文件（`generators.ts` 负责分派）
+- `src/engines/`：六种题型：数数、选择题、拖拉分类、描数字、排顺序、数字配对
 - `src/screens/`：主页、练习、奖励、贴纸册、家长区
 - `android/`：Capacitor 产生的 Android 项目；`scripts/make-icons.cjs` 产生图标
 - `.github/workflows/android.yml`：自动打包 APK
