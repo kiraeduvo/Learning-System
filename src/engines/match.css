@@ -1,0 +1,252 @@
+/* 数字配对：上面一排数字卡，下面每一堆一张大卡片 */
+/* 间距（padding、gap）写在 MatchEngine 的 MATCH_SPACING，排版跟画面用同一组数字 */
+/* 注意：可以点的东西（数字卡、每一堆）本身不要一直动（自动测试要等它停下来才点得到），
+   提示的闪动只用 box-shadow，或者放在里面的小东西上 */
+
+/* 大小是量这个框算出来的：里面的东西不能把它撑大（不然越量越大） */
+.match-engine {
+  min-width: 0;
+}
+
+/* ---------- 数字卡 ---------- */
+
+.match-numerals {
+  display: flex;
+  justify-content: center;
+  flex-wrap: nowrap;
+}
+.match-numeral {
+  position: relative;
+  z-index: 3;
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 22px;
+  background: var(--card);
+  box-shadow: 0 6px 0 var(--line);
+  color: var(--sky);
+  font-weight: 600;
+  line-height: 1;
+  touch-action: none;
+  cursor: grab;
+  transition:
+    transform 0.15s ease-out,
+    box-shadow 0.15s ease-out;
+}
+/* 拿起来了：往上跳一点，蓝色框 */
+.match-numeral.picked {
+  transform: translateY(-10px);
+  box-shadow:
+    0 0 0 5px var(--sky),
+    0 16px 18px rgba(74, 144, 226, 0.28);
+}
+.match-numeral.dragging {
+  z-index: 10;
+  cursor: grabbing;
+  box-shadow:
+    0 0 0 5px var(--sky),
+    0 18px 28px rgba(0, 0, 0, 0.22);
+}
+/* 已经放好的数字卡：原来的位置留一个虚线框（其他卡不会跑来跑去） */
+.match-numeral.ghost {
+  z-index: 0;
+  background: transparent;
+  box-shadow: none;
+  border: 3px dashed var(--line);
+}
+
+/* ---------- 每一堆 ---------- */
+
+.match-groups {
+  display: grid;
+  justify-content: center;
+  align-content: center;
+}
+.match-group {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 26px;
+  background: var(--card);
+  box-shadow: 0 6px 0 var(--line);
+  /* 框（box-shadow）不做渐变：拖过两堆中间时，只会有一堆亮，不会两堆同时亮 */
+  transition:
+    background-color 0.15s,
+    transform 0.1s;
+}
+.match-group.top {
+  flex-direction: column;
+}
+.match-group.left {
+  flex-direction: row;
+}
+.match-group:active {
+  transform: translateY(3px);
+}
+/* 手上有数字卡：每一堆都可以放 */
+.match-group.ready {
+  background: #f5faff;
+}
+.match-group.counting {
+  background: #fff7dc;
+}
+.match-group.matched {
+  background: #effaf2;
+  box-shadow:
+    0 0 0 4px var(--good),
+    0 6px 0 var(--line);
+}
+/* 放错了：橙色框（温和一点，不用红色） */
+.match-group.miss {
+  box-shadow:
+    0 0 0 5px #ffb36b,
+    0 6px 0 var(--line);
+}
+/* 拖到这一堆上面：放开就是放在这里（放在已经配好的那一堆也算放错，所以一样显示） */
+.match-group.hover {
+  background: #e8f2fd;
+  box-shadow:
+    0 0 0 5px var(--sky),
+    0 6px 0 var(--line);
+}
+/* 错两次以后：对的那一堆轻轻发亮（画在 ::after 上，不会盖掉拖过去时的蓝框） */
+.match-group.hint::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  animation: match-hint 1.1s ease-in-out infinite;
+}
+/* 数字卡正飞进来：盖在其他卡片上面 */
+.match-group.landing {
+  z-index: 4;
+}
+.match-group.landing .match-obj-art {
+  animation: hop 0.4s 0.25s;
+}
+
+/* ---------- 放数字的格子 ---------- */
+
+.match-slot {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 18px;
+  border: 3px dashed #dcc9ab;
+  background: #fffaf1;
+  transition:
+    border-color 0.2s,
+    background-color 0.2s;
+}
+.match-slot-mark {
+  color: #e6d6bd;
+  font-weight: 600;
+  line-height: 1;
+}
+.match-group.ready .match-slot {
+  border-color: var(--sky);
+  background: #fff;
+}
+.match-group.ready .match-slot-mark {
+  color: #b9d5f5;
+}
+.match-group.hint .match-slot {
+  border-color: var(--good);
+  background: #f3fcf5;
+  animation: match-slot-pulse 1.1s ease-in-out infinite;
+}
+.match-group.hint .match-slot-mark {
+  color: #a8e0b8;
+}
+.match-group.hover .match-slot {
+  border-style: solid;
+}
+.match-slot.filled {
+  border: none;
+  background: none;
+}
+/* 放好的数字卡（跟上面的数字卡一样的样子，加绿色框） */
+.match-slot-card {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 18px;
+  background: var(--card);
+  box-shadow:
+    0 0 0 4px var(--good),
+    0 4px 0 var(--line);
+  color: var(--sky);
+  font-weight: 600;
+  line-height: 1;
+  /* 飞进来的动画从左上角算 */
+  transform-origin: 0 0;
+}
+
+/* ---------- 东西 ---------- */
+
+.match-items {
+  position: relative;
+  flex: none;
+}
+.match-obj {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.match-obj-art {
+  display: flex;
+  transition:
+    transform 0.2s,
+    filter 0.2s;
+}
+/* 正在数的那一个：变大、发亮 */
+.match-obj.now .match-obj-art {
+  transform: scale(1.22);
+  filter: drop-shadow(0 0 6px rgba(255, 186, 40, 0.95));
+}
+.match-count-badge {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  z-index: 1;
+  display: flex;
+}
+.match-count-num {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: var(--primary);
+  color: #fff;
+  font-weight: 600;
+  line-height: 1;
+  box-shadow: 0 2px 0 var(--primary-dark);
+  animation: pop 0.3s;
+}
+
+@keyframes match-hint {
+  0%,
+  100% {
+    box-shadow: 0 0 0 2px rgba(61, 187, 99, 0.7);
+  }
+  50% {
+    box-shadow: 0 0 0 13px rgba(61, 187, 99, 0.25);
+  }
+}
+@keyframes match-slot-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.08);
+  }
+}
