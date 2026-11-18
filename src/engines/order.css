@@ -1,0 +1,225 @@
+/* 排顺序：上面一排格子，下面打乱的东西。名字都用 order- 开头，不跟别的游戏冲突 */
+
+/* ---------- 上面的格子 ---------- */
+
+.order-board {
+  /* 飞进格子的东西要盖在下面的卡片上面 */
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.55);
+  border-radius: 28px;
+  transition: box-shadow 0.15s;
+}
+.order-board.over {
+  box-shadow: 0 0 0 5px rgba(74, 144, 226, 0.35);
+}
+.order-slots {
+  display: flex;
+  /* 大小不一样的格子底部对齐，像楼梯 */
+  align-items: flex-end;
+  justify-content: center;
+}
+.order-slot {
+  position: relative;
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: min(20px, 24%);
+  border: 3px dashed #e2c9a6;
+  background: rgba(255, 255, 255, 0.75);
+}
+.order-slot.next {
+  border-color: var(--primary);
+  background: #fff;
+  animation: order-breathe 1.4s ease-in-out infinite;
+}
+.order-board.over .order-slot.next {
+  background: #fff3ea;
+}
+.order-slot.filled,
+.order-slot.given {
+  z-index: 3;
+  border: 3px solid transparent;
+  background: #fff;
+  box-shadow: 0 4px 0 var(--line);
+}
+.order-slot.filled {
+  border-color: #b9e6c5;
+}
+.order-q {
+  font-weight: 600;
+  line-height: 1;
+  color: var(--primary);
+}
+.order-face {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  pointer-events: none;
+}
+.order-face.fly {
+  animation: order-fly 0.45s cubic-bezier(0.25, 1, 0.35, 1.12) both;
+}
+/* 全部排好：一个一个跳一下 */
+.order-engine.solved .order-slot {
+  border-color: #8fd6a3;
+  animation: order-hop 0.5s ease-out calc(var(--i) * 90ms + 0.2s) both;
+}
+
+/* 方向提示（楔形 / 箭头） */
+.order-guide {
+  display: block;
+  flex: none;
+  overflow: visible;
+}
+.order-guide polygon {
+  fill: #efd5b2;
+  stroke: #efd5b2;
+  stroke-width: 4;
+  stroke-linejoin: round;
+}
+.order-guide path {
+  fill: none;
+  stroke: #e6caa4;
+  stroke-width: 5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* ---------- 下面的东西 ---------- */
+
+.order-tray {
+  display: grid;
+  justify-content: center;
+}
+.order-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  background: var(--card);
+  border-radius: 24px;
+  box-shadow: 0 6px 0 var(--line);
+  /* 拖的时候画面不要跟着滑动 */
+  touch-action: none;
+  transition:
+    transform 0.18s ease-out,
+    background-color 0.2s;
+}
+.order-card:active {
+  background: #fff8ef;
+}
+.order-card.dragging {
+  position: relative;
+  z-index: 20;
+  cursor: grabbing;
+  transition: none;
+  animation: none !important;
+  box-shadow: 0 16px 26px rgba(0, 0, 0, 0.18);
+}
+/* 点错：摇一摇（两个一样的动画轮流用，连续点错也会重新摇） */
+.order-card.shake-a {
+  animation: order-shake-a 0.45s;
+  background: #fff0ee;
+}
+.order-card.shake-b {
+  animation: order-shake-b 0.45s;
+  background: #fff0ee;
+}
+/* 错两次以后：正确的那个轻轻发光 */
+.order-card.hinting {
+  animation: order-hint 1.2s ease-in-out infinite;
+}
+.order-ghost {
+  display: block;
+}
+
+/* ---------- 动画 ---------- */
+
+@keyframes order-fly {
+  from {
+    transform: translate(var(--fx), var(--fy)) scale(var(--fs));
+  }
+  to {
+    transform: none;
+  }
+}
+@keyframes order-breathe {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 122, 69, 0.35);
+  }
+  50% {
+    box-shadow: 0 0 0 9px rgba(255, 122, 69, 0.12);
+  }
+}
+@keyframes order-hop {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  45% {
+    transform: translateY(-14px);
+  }
+}
+/* 只改阴影和底色、不改大小位置：一直在动的东西也点得到（自动测试也要等它"停下来"才点） */
+@keyframes order-hint {
+  0%,
+  100% {
+    background-color: #fff;
+    box-shadow:
+      0 0 0 4px rgba(61, 187, 99, 0.7),
+      0 0 0 4px rgba(61, 187, 99, 0.3),
+      0 6px 0 var(--line);
+  }
+  50% {
+    background-color: #ecfaef;
+    box-shadow:
+      0 0 0 4px rgba(61, 187, 99, 0.9),
+      0 0 0 16px rgba(61, 187, 99, 0.18),
+      0 6px 0 var(--line);
+  }
+}
+@keyframes order-shake-a {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translateX(-10px);
+  }
+  40% {
+    transform: translateX(10px);
+  }
+  60% {
+    transform: translateX(-6px);
+  }
+  80% {
+    transform: translateX(6px);
+  }
+}
+@keyframes order-shake-b {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translateX(-10px);
+  }
+  40% {
+    transform: translateX(10px);
+  }
+  60% {
+    transform: translateX(-6px);
+  }
+  80% {
+    transform: translateX(6px);
+  }
+}
