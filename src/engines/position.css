@@ -1,0 +1,232 @@
+/* 位置：选图（几张卡片）、放东西（一个大画面 + 一张放东西的卡）。名字都用 pos- 开头，不跟别的游戏冲突 */
+/* 注意：可以点的东西（卡片、空位）本身不要一直动（自动测试要等它停下来才点得到），
+   提示的闪动只用 box-shadow，会动的放在里面的小东西上 */
+
+/* 大小是量这个框算出来的：里面的东西不能把它撑大（不然越量越大） */
+.pos-engine {
+  min-width: 0;
+}
+
+/* ---------- 选图 ---------- */
+
+.pos-cards {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-content: center;
+  max-width: 100%;
+}
+.pos-card {
+  flex: none;
+  padding: 0;
+}
+.pos-scene {
+  display: block;
+  flex: none;
+  overflow: visible;
+  pointer-events: none;
+}
+/* 对了：东西跳一下 */
+.pos-card.right .pos-obj {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  animation: pos-hop 0.55s 0.2s ease-out;
+}
+/* 答对以后，其他的卡淡一点（看清楚对的那一张） */
+.pos-cards.solved .pos-card:not(.right) {
+  opacity: 0.45;
+}
+
+/* ---------- 放东西：画面 ---------- */
+
+.pos-place {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.pos-place.stacked {
+  flex-direction: column;
+}
+.pos-place.side {
+  flex-direction: row;
+}
+.pos-stage {
+  position: relative;
+  flex: none;
+  /* 里面的前后顺序（z-index）只在画面里面比 */
+  isolation: isolate;
+  border-radius: 28px;
+  background: rgba(255, 255, 255, 0.72);
+  box-shadow: 0 6px 0 var(--line);
+  transition: box-shadow 0.3s;
+}
+.pos-stage.solved {
+  box-shadow:
+    0 0 0 5px rgba(61, 187, 99, 0.55),
+    0 6px 0 var(--line);
+}
+.pos-layer {
+  position: absolute;
+  left: 0;
+  top: 0;
+  overflow: visible;
+  pointer-events: none;
+}
+
+/* 空位：虚线圆圈（被参考的东西挡住的部分看不到，像东西放在那里一样） */
+.pos-zone {
+  position: absolute;
+  border-radius: 50%;
+  border: 3px dashed #a9cbef;
+  /* 盖在箱子上面的圆圈（前面）也要是亮的，不要变灰 */
+  background: rgba(246, 251, 255, 0.9);
+  transition:
+    background-color 0.15s,
+    border-color 0.15s,
+    opacity 0.3s;
+}
+.pos-zone:active {
+  background: #dcebfc;
+}
+/* 手上拿着东西：每个空位都可以放 */
+.pos-stage.ready .pos-zone {
+  border-color: var(--sky);
+  background: rgba(225, 238, 253, 0.92);
+}
+/* 拖到这个空位上面：放开就是放在这里 */
+.pos-zone.hover {
+  border-style: solid;
+  border-color: var(--sky);
+  background: #d3e6fc;
+  box-shadow: 0 0 0 6px rgba(74, 144, 226, 0.28);
+}
+/* 放错了：橙色（温和一点，不用红色），然后变淡 */
+.pos-zone.miss {
+  border-style: solid;
+  border-color: #ffb36b;
+  background: #fff1e2;
+}
+.pos-zone.tried:not(.miss) {
+  opacity: 0.3;
+}
+/* 错两次以后：对的那个轻轻发亮 */
+.pos-zone.hint {
+  border-color: var(--good);
+  background: rgba(236, 250, 239, 0.95);
+  animation: pos-hint 1.1s ease-in-out infinite;
+}
+.pos-stage.solved .pos-zone {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* 放好的东西（飞进来的动画从左上角算） */
+.pos-placed {
+  position: absolute;
+  display: flex;
+  transform-origin: 0 0;
+  pointer-events: none;
+}
+.pos-placed > svg {
+  transform-origin: 50% 100%;
+  animation: pos-hop 0.5s 0.42s ease-out;
+}
+
+/* ---------- 放东西：东西那张卡 ---------- */
+
+.pos-tray {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.pos-token {
+  position: relative;
+  z-index: 6;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 26px;
+  background: var(--card);
+  box-shadow: 0 6px 0 var(--line);
+  /* 拖的时候画面不要跟着滑动 */
+  touch-action: none;
+  cursor: grab;
+  transition:
+    transform 0.15s ease-out,
+    box-shadow 0.15s ease-out;
+}
+/* 点一下：拿起来，往上跳一点，蓝色框 */
+.pos-token.picked {
+  transform: translateY(-10px);
+  box-shadow:
+    0 0 0 5px var(--sky),
+    0 16px 18px rgba(74, 144, 226, 0.28);
+}
+/* 拖的时候只看到东西（卡片变透明），才看得到底下哪一个空位亮起来 */
+.pos-token.dragging {
+  z-index: 20;
+  cursor: grabbing;
+  background: transparent;
+  box-shadow: none;
+}
+.pos-token.dragging .pos-token-art {
+  filter: drop-shadow(0 12px 10px rgba(0, 0, 0, 0.22));
+}
+/* 卡片原来的位置留一个虚线框（用 outline，不会改变大小） */
+.pos-tray.dragging {
+  border-radius: 26px;
+  outline: 3px dashed var(--line);
+  outline-offset: -3px;
+}
+/* 东西已经放好：原来的位置留一个虚线框 */
+.pos-token.ghost {
+  background: transparent;
+  box-shadow: none;
+  border: 3px dashed var(--line);
+}
+/* 东西轻轻上下动，告诉孩子"拿我" */
+.pos-token-art {
+  display: flex;
+  pointer-events: none;
+  animation: pos-bob 2.4s ease-in-out infinite;
+}
+.pos-token.picked .pos-token-art,
+.pos-token.dragging .pos-token-art {
+  animation: none;
+}
+
+/* ---------- 动画 ---------- */
+
+@keyframes pos-hop {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+  35% {
+    transform: translateY(-12%) scale(1.04, 0.97);
+  }
+  70% {
+    transform: translateY(0) scale(1.03, 0.96);
+  }
+}
+@keyframes pos-bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+@keyframes pos-hint {
+  0%,
+  100% {
+    box-shadow: 0 0 0 2px rgba(61, 187, 99, 0.7);
+  }
+  50% {
+    box-shadow: 0 0 0 13px rgba(61, 187, 99, 0.25);
+  }
+}
