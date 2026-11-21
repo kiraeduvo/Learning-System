@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { generateQuestion, numberOptions } from './generators'
+import { generateQuestion, numberOptions, repeatKey } from './generators'
 import { promptText } from './i18n'
 import { seededRng } from './rng'
 import { SKILLS } from './skills'
@@ -146,6 +146,21 @@ describe('generators', () => {
       if (recent.length > 4) recent.shift()
     }
     expect(repeats).toBeLessThan(3)
+  })
+
+  it('加减法：换了东西也不会马上再出同一道算式', () => {
+    for (const skill of ['addition', 'subtraction'] as const) {
+      const rng = seededRng(21)
+      const recent: string[] = []
+      let repeats = 0
+      for (let i = 0; i < 200; i++) {
+        const q = generateQuestion(skill, 2, rng, recent)
+        if (recent.includes(repeatKey(q))) repeats++
+        recent.push(repeatKey(q))
+        if (recent.length > 5) recent.shift()
+      }
+      expect(repeats).toBe(0)
+    }
   })
 
   it('numberOptions 不重复、包括答案', () => {

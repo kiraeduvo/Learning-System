@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { dateKey } from '../core/dates'
-import { generateQuestion } from '../core/generators'
+import { generateQuestion, repeatKey } from '../core/generators'
 import { praise, promptText } from '../core/i18n'
 import { applyResult, planSession } from '../core/learning'
 import { defaultRng } from '../core/rng'
@@ -80,7 +80,7 @@ export function Session({
     const skill = plan[index]
     const d = c.progress[skill]?.difficulty ?? 1
     const q = generateQuestion(skill, d, defaultRng, recent.current[skill] ?? [])
-    recent.current[skill] = [...(recent.current[skill] ?? []), q.signature].slice(-5)
+    recent.current[skill] = [...(recent.current[skill] ?? []), repeatKey(q)].slice(-5)
     setQuestion(q)
     setMood('happy')
     const t = window.setTimeout(() => say(promptText(q.prompt, lang)), 350)

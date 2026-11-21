@@ -52,15 +52,29 @@ function generateOnce(skill: SkillId, d: Difficulty, rng: Rng): Question {
   }
 }
 
+/**
+ * 用来判断"是不是同一题"的 key：
+ * 加减法只看算式（4 − 2 换成别的东西，孩子还是觉得是同一题），其他游戏看 signature。
+ */
+export function repeatKey(q: Question): string {
+  return q.engine === 'arith' ? `${q.skill}:${q.a}${q.op}${q.b}` : q.signature
+}
+
+/** 最近出过吗？recent 里可以是 repeatKey，也可以是完整的 signature */
+function seenRecently(q: Question, recent: readonly string[]): boolean {
+  const key = repeatKey(q)
+  return recent.some((s) => s === key || (q.engine === 'arith' && s.startsWith(`${key}:`)))
+}
+
 /** 生成一题；尽量不跟最近出过的题一样 */
 export function generateQuestion(
   skill: SkillId,
   d: Difficulty,
   rng: Rng,
-  recentSignatures: readonly string[] = [],
+  recent: readonly string[] = [],
 ): Question {
   let q = generateOnce(skill, d, rng)
-  for (let i = 0; i < 12 && recentSignatures.includes(q.signature); i++) {
+  for (let i = 0; i < 12 && seenRecently(q, recent); i++) {
     q = generateOnce(skill, d, rng)
   }
   return q
