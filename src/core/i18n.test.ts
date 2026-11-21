@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { promptText } from './i18n'
+import { promptText, wrongPosition } from './i18n'
 
 describe('新题目的三种语言', () => {
   it('位置', () => {
@@ -11,6 +11,13 @@ describe('新题目的三种语言', () => {
     expect(promptText(put, 'zh')).toBe('把球放到桌子前面')
     expect(promptText(put, 'ms')).toBe('Letakkan bola di hadapan meja')
     expect(promptText(put, 'en')).toBe('Put the ball in front of the table')
+  })
+
+  it('位置题答错时说出那个位置', () => {
+    expect(wrongPosition('pick', 'cat', 'under', 'box', 'zh')).toBe('这一只在箱子下面，再试一次')
+    expect(wrongPosition('pick', 'cat', 'under', 'box', 'ms')).toBe('Yang ini di bawah kotak. Cuba lagi')
+    expect(wrongPosition('place', 'ball', 'nextTo', 'table', 'en')).toBe('This is next to the table. Try again')
+    expect(wrongPosition('place', 'ball', 'nextTo', 'table', 'zh')).toBe('这里是桌子旁边，再试一次')
   })
 
   it('加法：中文数东西时 2 说"两"', () => {

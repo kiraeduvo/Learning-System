@@ -72,6 +72,25 @@ function countWord(n: number, lang: Lang): string {
 
 const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1)
 
+/**
+ * 位置题答错时说出"那个"其实在哪里，再试一次：
+ * 选图：这一只在箱子下面，再试一次。放东西：这里是箱子旁边，再试一次。
+ */
+export function wrongPosition(
+  mode: 'pick' | 'place',
+  kind: ObjectKind,
+  pos: Position,
+  ref: RefKind,
+  lang: Lang,
+): string {
+  const where = POSITION_WORDS[pos][lang]
+  const r = REF_WORDS[ref][lang]
+  if (lang === 'zh')
+    return mode === 'pick' ? `这一${OBJECT_WORDS[kind].zh[0]}在${r}${where}，再试一次` : `这里是${r}${where}，再试一次`
+  if (lang === 'ms') return `${mode === 'pick' ? 'Yang ini' : 'Ini'} ${where} ${r}. Cuba lagi`
+  return `${mode === 'pick' ? 'This one is' : 'This is'} ${where} the ${r}. Try again`
+}
+
 export function objectName(kind: ObjectKind, lang: Lang): string {
   const w = OBJECT_WORDS[kind]
   if (lang === 'zh') return w.zh[1]

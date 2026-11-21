@@ -13,7 +13,7 @@ import {
   type PointerEvent as ReactPointerEvent,
   type RefObject,
 } from 'react'
-import { POSITION_WORDS, ui } from '../core/i18n'
+import { POSITION_WORDS, wrongPosition } from '../core/i18n'
 import type { Position, PositionQuestion } from '../core/types'
 import { ItemArt } from '../ui/art'
 import { scoreFor, useViewport } from '../ui/hooks'
@@ -249,7 +249,7 @@ function PickGame({ q, lang, say, onSolved }: EngineProps<PositionQuestion>) {
     triedRef.current = [...triedRef.current, pos]
     setTried(triedRef.current)
     sfx.wrong()
-    say(ui('tryAgain', lang))
+    say(wrongPosition('pick', q.kind, pos, q.ref, lang))
   }
 
   const hint = tried.length >= 2 && !solved
@@ -375,7 +375,7 @@ function PlaceGame({ q, lang, say, onSolved }: EngineProps<PositionQuestion>) {
     later(() => setMissed((m) => (m === pos ? null : m)), 700)
     shake(zoneEls.current.get(pos))
     sfx.wrong()
-    say(ui('tryAgain', lang))
+    say(wrongPosition('place', q.kind, pos, q.ref, lang))
     return false
   }
 

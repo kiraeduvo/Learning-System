@@ -1,4 +1,5 @@
 import type { SkillDef } from '../core/skills'
+import { OBJ, RefArt } from '../engines/positionArt'
 import { Basket, ItemArt } from './art'
 
 /** 主页游戏格子上的小图 */
@@ -98,12 +99,15 @@ export function SkillIcon({ skill, size }: { skill: SkillDef; size: number }) {
         </span>
       )
     case 'position':
+      // 跟游戏里一样的箱子（盖着的），小猫坐在上面
       return (
-        <span className="skill-icon column">
-          <ItemArt item={{ kind: 'cat' }} size={s * 0.34} />
-          <svg width={s * 0.56} height={s * 0.26} viewBox="0 0 100 46" aria-hidden="true">
-            <rect x="4" y="4" width="92" height="38" rx="5" fill="#C98B5A" stroke="#8A5A2B" strokeWidth="4" />
-            <path d="M4 18h92" stroke="#8A5A2B" strokeWidth="3" opacity="0.5" />
+        <span className="skill-icon">
+          <svg width={s * 0.66} height={s * 0.66} viewBox="-6 -60 112 148" aria-hidden="true">
+            <RefArt kind="box" open={false} part="back" />
+            <RefArt kind="box" open={false} part="front" />
+            <g transform={`translate(${50 - OBJ / 2} ${-OBJ + 6})`}>
+              <ItemArt item={{ kind: 'cat' }} size={OBJ} />
+            </g>
           </svg>
         </span>
       )
