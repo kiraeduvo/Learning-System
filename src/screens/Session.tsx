@@ -9,9 +9,11 @@ import { defaultRng } from '../core/rng'
 import { pickNewSticker, type StickerDef } from '../core/stickers'
 import type { ChildProfile, Question, SkillId } from '../core/types'
 import { ChoiceEngine } from '../engines/ChoiceEngine'
+import { ArithEngine } from '../engines/ArithEngine'
 import { CountEngine } from '../engines/CountEngine'
 import { MatchEngine } from '../engines/MatchEngine'
 import { OrderEngine } from '../engines/OrderEngine'
+import { PositionEngine } from '../engines/PositionEngine'
 import { SortEngine } from '../engines/SortEngine'
 import { TraceEngine } from '../engines/TraceEngine'
 import { speak, stopSpeaking } from '../services/speech'
@@ -217,6 +219,8 @@ export function Session({
         {question.engine === 'trace' && <TraceEngine q={question} {...engineProps} />}
         {question.engine === 'order' && <OrderEngine q={question} {...engineProps} />}
         {question.engine === 'match' && <MatchEngine q={question} {...engineProps} />}
+        {question.engine === 'position' && <PositionEngine q={question} {...engineProps} />}
+        {question.engine === 'arith' && <ArithEngine q={question} {...engineProps} />}
       </div>
 
       {celebrate && (

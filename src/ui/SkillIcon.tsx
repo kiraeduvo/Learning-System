@@ -97,6 +97,23 @@ export function SkillIcon({ skill, size }: { skill: SkillDef; size: number }) {
           1 2 3
         </span>
       )
+    case 'position':
+      return (
+        <span className="skill-icon column">
+          <ItemArt item={{ kind: 'cat' }} size={s * 0.34} />
+          <svg width={s * 0.56} height={s * 0.26} viewBox="0 0 100 46" aria-hidden="true">
+            <rect x="4" y="4" width="92" height="38" rx="5" fill="#C98B5A" stroke="#8A5A2B" strokeWidth="4" />
+            <path d="M4 18h92" stroke="#8A5A2B" strokeWidth="3" opacity="0.5" />
+          </svg>
+        </span>
+      )
+    case 'addition':
+    case 'subtraction':
+      return (
+        <span className="skill-icon numeral-icon" style={{ fontSize: s * 0.3 }}>
+          {skill.icon === 'addition' ? '1+2' : '3−1'}
+        </span>
+      )
     case 'matchNumber':
       return (
         <span className="skill-icon column">

@@ -6,7 +6,7 @@
 
 import type { SkillId } from './types'
 
-export type Strand = 'pranombor' | 'konsepNombor' | 'bentukRuang'
+export type Strand = 'pranombor' | 'konsepNombor' | 'operasiNombor' | 'bentukRuang'
 
 export interface SkillDef {
   id: SkillId
@@ -31,6 +31,9 @@ export interface SkillDef {
     | 'orderSize'
     | 'orderNumber'
     | 'matchNumber'
+    | 'position'
+    | 'addition'
+    | 'subtraction'
   /** 每次练习最多出几题（比较花时间的题型） */
   maxPerSession?: number
 }
@@ -38,6 +41,7 @@ export interface SkillDef {
 export const STRAND_NAMES: Record<Strand, { zh: string; ms: string }> = {
   pranombor: { zh: '数前概念', ms: 'Pranombor' },
   konsepNombor: { zh: '数的概念', ms: 'Konsep Nombor' },
+  operasiNombor: { zh: '加减法', ms: 'Operasi Nombor' },
   bentukRuang: { zh: '形状与空间', ms: 'Bentuk dan Ruang' },
 }
 
@@ -92,6 +96,23 @@ export const SKILLS: SkillDef[] = [
     nameZh: '数字配对',
     icon: 'matchNumber',
     maxPerSession: 3,
+  },
+  { id: 'position', strand: 'bentukRuang', age: 4, prerequisites: [], nameZh: '位置：上下里外', icon: 'position' },
+  {
+    id: 'addition',
+    strand: 'operasiNombor',
+    age: 5,
+    prerequisites: ['numeral5'],
+    nameZh: '加法（10 以内）',
+    icon: 'addition',
+  },
+  {
+    id: 'subtraction',
+    strand: 'operasiNombor',
+    age: 5,
+    prerequisites: ['addition'],
+    nameZh: '减法（10 以内）',
+    icon: 'subtraction',
   },
   { id: 'count10', strand: 'konsepNombor', age: 5, prerequisites: ['count5'], nameZh: '数数 1–10', icon: 'count' },
   {

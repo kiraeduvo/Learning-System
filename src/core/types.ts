@@ -17,6 +17,9 @@ export type SkillId =
   | 'orderSize'
   | 'orderNumber'
   | 'matchNumber'
+  | 'position'
+  | 'addition'
+  | 'subtraction'
 
 export type Difficulty = 1 | 2 | 3
 
@@ -32,6 +35,12 @@ export type ObjectKind =
   | 'cat'
 
 export type ShapeKind = 'circle' | 'triangle' | 'square' | 'rectangle'
+
+/** 位置（Kedudukan）：在参考的东西的哪里 */
+export type Position = 'on' | 'under' | 'in' | 'outside' | 'nextTo' | 'front' | 'behind'
+
+/** 位置题里当作参考的东西 */
+export type RefKind = 'box' | 'table' | 'basket'
 
 export type ColorName = 'red' | 'blue' | 'yellow' | 'green' | 'purple' | 'orange' | 'pink'
 
@@ -66,6 +75,12 @@ export type Prompt =
   | { key: 'missingNumber' }
   | { key: 'missingNumbers' }
   | { key: 'matchNumbers' }
+  | { key: 'whereIs'; pos: Position; kind: ObjectKind; ref: RefKind }
+  | { key: 'putIt'; pos: Position; kind: ObjectKind; ref: RefKind }
+  | { key: 'addStory'; a: number; b: number; kind: ObjectKind }
+  | { key: 'subStory'; a: number; b: number; kind: ObjectKind }
+  | { key: 'addEquation'; a: number; b: number }
+  | { key: 'subEquation'; a: number; b: number }
 
 export interface BaseQuestion {
   skill: SkillId
@@ -115,10 +130,22 @@ export interface TraceQuestion extends BaseQuestion {
 // 每个新游戏的题目类型放在自己的文件里（多个 agent 可以同时做不同的游戏）
 export type { OrderItem, OrderQuestion } from './games/order'
 export type { MatchQuestion } from './games/match'
+export type { PositionQuestion } from './games/position'
+export type { ArithQuestion } from './games/arith'
 import type { OrderQuestion } from './games/order'
 import type { MatchQuestion } from './games/match'
+import type { PositionQuestion } from './games/position'
+import type { ArithQuestion } from './games/arith'
 
-export type Question = CountQuestion | ChoiceQuestion | SortQuestion | TraceQuestion | OrderQuestion | MatchQuestion
+export type Question =
+  | CountQuestion
+  | ChoiceQuestion
+  | SortQuestion
+  | TraceQuestion
+  | OrderQuestion
+  | MatchQuestion
+  | PositionQuestion
+  | ArithQuestion
 
 /** 每一题做完的结果。score：1 = 第一次就对，0.5 = 错一次，0 = 错很多次 */
 export interface QuestionResult {

@@ -55,6 +55,21 @@ function checkQuestion(q: Question) {
       for (const it of q.items) expect(it.item !== undefined || it.numeral !== undefined).toBe(true)
       break
     }
+    case 'position': {
+      // 对的位置一定在选项里，选项不重复
+      expect(q.options).toContain(q.answer)
+      expect(new Set(q.options).size).toBe(q.options.length)
+      expect(q.options.length).toBeGreaterThanOrEqual(2)
+      break
+    }
+    case 'arith': {
+      expect(q.answer).toBe(q.op === '+' ? q.a + q.b : q.a - q.b)
+      expect(q.answer).toBeGreaterThanOrEqual(0)
+      expect(q.answer).toBeLessThanOrEqual(10)
+      expect(q.options.filter((v) => v === q.answer).length).toBe(1)
+      expect(new Set(q.options).size).toBe(q.options.length)
+      break
+    }
     case 'match': {
       // 每张数字卡刚好对一堆，数量不重复
       expect(q.groups.length).toBeGreaterThanOrEqual(2)

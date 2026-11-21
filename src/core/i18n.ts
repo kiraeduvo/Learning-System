@@ -1,6 +1,6 @@
 // 三种语言的文字（孩子听到的语音也是用这些）
 
-import type { ColorName, Lang, ObjectKind, Prompt, ShapeKind } from './types'
+import type { ColorName, Lang, ObjectKind, Position, Prompt, RefKind, ShapeKind } from './types'
 
 // 名字 + 量词（中文）/ penjodoh bilangan（马来文）/ 复数（英文）
 const OBJECT_WORDS: Record<ObjectKind, { zh: [string, string]; ms: [string, string]; en: [string, string] }> = {
@@ -42,6 +42,35 @@ const NUMBER_WORDS: Record<Lang, string[]> = {
 export function numberWord(n: number, lang: Lang): string {
   return NUMBER_WORDS[lang][n] ?? String(n)
 }
+
+/** 位置：中文放在名词后面（箱子上面），马来文、英文放在名词前面（di atas kotak / on the box） */
+export const POSITION_WORDS: Record<Position, Record<Lang, string>> = {
+  on: { zh: '上面', ms: 'di atas', en: 'on' },
+  under: { zh: '下面', ms: 'di bawah', en: 'under' },
+  in: { zh: '里面', ms: 'di dalam', en: 'in' },
+  outside: { zh: '外面', ms: 'di luar', en: 'outside' },
+  nextTo: { zh: '旁边', ms: 'di sebelah', en: 'next to' },
+  front: { zh: '前面', ms: 'di hadapan', en: 'in front of' },
+  behind: { zh: '后面', ms: 'di belakang', en: 'behind' },
+}
+
+export const REF_WORDS: Record<RefKind, Record<Lang, string>> = {
+  box: { zh: '箱子', ms: 'kotak', en: 'box' },
+  table: { zh: '桌子', ms: 'meja', en: 'table' },
+  basket: { zh: '篮子', ms: 'bakul', en: 'basket' },
+}
+
+/** 量词（中文）/ penjodoh bilangan（马来文） */
+export function measureWord(kind: ObjectKind, lang: 'zh' | 'ms'): string {
+  return OBJECT_WORDS[kind][lang][0]
+}
+
+/** 数东西时的数字：中文 2 要说"两"（两个苹果），算式里还是"二" */
+function countWord(n: number, lang: Lang): string {
+  return lang === 'zh' && n === 2 ? '两' : numberWord(n, lang)
+}
+
+const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1)
 
 export function objectName(kind: ObjectKind, lang: Lang): string {
   const w = OBJECT_WORDS[kind]
@@ -118,6 +147,46 @@ export function promptText(p: Prompt, lang: Lang): string {
       return { zh: '哪一个数字不见了？', ms: 'Nombor apa yang hilang?', en: 'Which number is missing?' }[lang]
     case 'missingNumbers':
       return { zh: '哪些数字不见了？', ms: 'Nombor apa yang hilang?', en: 'Which numbers are missing?' }[lang]
+    case 'whereIs': {
+      const w = OBJECT_WORDS[p.kind]
+      const pos = POSITION_WORDS[p.pos][lang]
+      const ref = REF_WORDS[p.ref][lang]
+      if (lang === 'zh') return `哪一${w.zh[0]}${w.zh[1]}在${ref}${pos}？`
+      if (lang === 'ms') return `${cap(w.ms[1])} yang mana ${pos} ${ref}?`
+      return `Which ${w.en[0]} is ${pos} the ${ref}?`
+    }
+    case 'putIt': {
+      const w = OBJECT_WORDS[p.kind]
+      const pos = POSITION_WORDS[p.pos][lang]
+      const ref = REF_WORDS[p.ref][lang]
+      if (lang === 'zh') return `把${w.zh[1]}放到${ref}${pos}`
+      if (lang === 'ms') return `Letakkan ${w.ms[1]} ${pos} ${ref}`
+      return `Put the ${w.en[0]} ${pos} the ${ref}`
+    }
+    case 'addStory': {
+      const w = OBJECT_WORDS[p.kind]
+      if (lang === 'zh')
+        return `有${countWord(p.a, 'zh')}${w.zh[0]}${w.zh[1]}，再加${countWord(p.b, 'zh')}${w.zh[0]}，一共有几${w.zh[0]}${w.zh[1]}？`
+      if (lang === 'ms')
+        return `Ada ${numberWord(p.a, 'ms')} ${w.ms[0]} ${w.ms[1]}. Tambah ${numberWord(p.b, 'ms')} ${w.ms[0]} lagi. Berapa ${w.ms[0]} semuanya?`
+      return `There ${p.a === 1 ? 'is' : 'are'} ${numberWord(p.a, 'en')} ${p.a === 1 ? w.en[0] : w.en[1]}. Add ${numberWord(p.b, 'en')} more. How many ${w.en[1]} altogether?`
+    }
+    case 'subStory': {
+      const w = OBJECT_WORDS[p.kind]
+      if (lang === 'zh')
+        return `有${countWord(p.a, 'zh')}${w.zh[0]}${w.zh[1]}，拿走${countWord(p.b, 'zh')}${w.zh[0]}，还剩几${w.zh[0]}？`
+      if (lang === 'ms')
+        return `Ada ${numberWord(p.a, 'ms')} ${w.ms[0]} ${w.ms[1]}. Ambil ${numberWord(p.b, 'ms')} ${w.ms[0]}. Berapa ${w.ms[0]} yang tinggal?`
+      return `There ${p.a === 1 ? 'is' : 'are'} ${numberWord(p.a, 'en')} ${p.a === 1 ? w.en[0] : w.en[1]}. Take away ${numberWord(p.b, 'en')}. How many are left?`
+    }
+    case 'addEquation':
+      if (lang === 'zh') return `${numberWord(p.a, 'zh')}加${numberWord(p.b, 'zh')}等于几？`
+      if (lang === 'ms') return `${cap(numberWord(p.a, 'ms'))} tambah ${numberWord(p.b, 'ms')} sama dengan berapa?`
+      return `What is ${numberWord(p.a, 'en')} plus ${numberWord(p.b, 'en')}?`
+    case 'subEquation':
+      if (lang === 'zh') return `${numberWord(p.a, 'zh')}减${numberWord(p.b, 'zh')}等于几？`
+      if (lang === 'ms') return `${cap(numberWord(p.a, 'ms'))} tolak ${numberWord(p.b, 'ms')} sama dengan berapa?`
+      return `What is ${numberWord(p.a, 'en')} minus ${numberWord(p.b, 'en')}?`
     case 'matchNumbers':
       return {
         zh: '把数字放到一样多的那一堆',

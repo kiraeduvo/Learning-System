@@ -3,12 +3,14 @@
 
 import type { Rng } from './rng'
 import type { Difficulty, Question, SkillId } from './types'
+import { arithQuestion } from './games/arith'
 import { moreLessQuestion, sizeQuestion } from './games/compare'
 import { countQuestion } from './games/count'
 import { matchQuestion } from './games/match'
 import { numeralQuestion } from './games/numeral'
 import { orderQuestion } from './games/order'
 import { patternQuestion } from './games/pattern'
+import { positionQuestion } from './games/position'
 import { shapesQuestion } from './games/shapes'
 import { sortColorQuestion, sortShapeQuestion } from './games/sort'
 import { traceQuestion } from './games/trace'
@@ -42,6 +44,11 @@ function generateOnce(skill: SkillId, d: Difficulty, rng: Rng): Question {
       return orderQuestion(skill, d, rng)
     case 'matchNumber':
       return matchQuestion(d, rng)
+    case 'position':
+      return positionQuestion(d, rng)
+    case 'addition':
+    case 'subtraction':
+      return arithQuestion(skill, d, rng)
   }
 }
 
